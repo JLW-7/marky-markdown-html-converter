@@ -93,6 +93,7 @@
       <div class="glass-effect rounded-2xl p-2 flex items-center card-shadow">
         <label for="convertDirection" class="block text-lg font-semibold mr-4 text-white">Convert from</label>
         <select id="convertDirection" class="bg-white text-blue-800 text-base rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-300 w-64 input-focus">
+          <option value="auto" selected>Auto Detect</option>
           <option value="md-to-html">Markdown → HTML</option>
           <option value="html-to-md">HTML → Markdown</option>
         </select>
@@ -108,13 +109,21 @@
             <label class="text-xl font-semibold text-white">Input</label>
             <div id="inputType" class="text-teal-200 text-sm mt-1">Markdown</div>
           </div>
-          <div class="flex space-x-1 text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1">
-            <button id="showCode" class="px-4 py-2 rounded-xl tab-active transition-all">
-              <i class="fas fa-code mr-1"></i>Code
-            </button>
-            <button id="showPreview" class="px-4 py-2 rounded-xl hover:bg-white/50 transition-all">
-              <i class="fas fa-eye mr-1"></i>Preview
-            </button>
+          <div class="flex items-center gap-2">
+            <!-- File Upload Button -->
+            <label class="cursor-pointer bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-sm font-semibold">
+              <i class="fas fa-upload"></i>
+              <span>Upload</span>
+              <input type="file" id="fileUpload" accept=".md,.html,.htm,.txt" class="hidden">
+            </label>
+            <div class="flex space-x-1 text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1">
+              <button id="showCode" class="px-4 py-2 rounded-xl tab-active transition-all">
+                <i class="fas fa-code mr-1"></i>Code
+              </button>
+              <button id="showPreview" class="px-4 py-2 rounded-xl hover:bg-white/50 transition-all">
+                <i class="fas fa-eye mr-1"></i>Preview
+              </button>
+            </div>
           </div>
         </div>
         
@@ -189,6 +198,7 @@
       const downloadMdBtn = document.getElementById('downloadMd');
       const inputType = document.getElementById('inputType');
       const outputType = document.getElementById('outputType');
+      const fileUpload = document.getElementById('fileUpload');
       
       // Initialize
       updateConversionLabels();
@@ -231,6 +241,48 @@
         markdownInput.value = '';
         htmlOutput.value = '';
         previewDiv.innerHTML = '';
+        fileUpload.value = ''; // Reset file input
+      });
+      
+      // File Upload Handler
+      fileUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const fileName = file.name.toLowerCase();
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+          const content = event.target.result;
+          
+          // Auto-detect file type and set conversion direction
+          if (fileName.endsWith('.html') || fileName.endsWith('.htm')) {
+            // HTML file uploaded - switch to HTML to Markdown mode
+            convertDirection.value = 'html-to-md';
+            updateConversionLabels();
+          } else if (fileName.endsWith('.md') || fileName.endsWith('.markdown')) {
+            // Markdown file uploaded - switch to Markdown to HTML mode
+            convertDirection.value = 'md-to-html';
+            updateConversionLabels();
+          }
+          // For .txt files, keep the current conversion direction
+          
+          // Set the content and trigger conversion
+          markdownInput.value = content;
+          convertContent();
+          
+          // Ensure we're showing the code view
+          showCodeBtn.classList.add('tab-active');
+          showPreviewBtn.classList.remove('tab-active');
+          markdownInput.classList.remove('hidden');
+          previewDiv.classList.add('hidden');
+        };
+        
+        reader.onerror = function() {
+          alert('Error reading file. Please try again.');
+        };
+        
+        reader.readAsText(file);
       });
       
       downloadHtmlBtn.addEventListener('click', function() {
@@ -263,7 +315,11 @@
       
       // Functions
       function updateConversionLabels() {
-        if (convertDirection.value === 'md-to-html') {
+        if (convertDirection.value === 'auto') {
+          inputType.textContent = 'Auto Detect';
+          outputType.textContent = 'Auto';
+          markdownInput.placeholder = 'Type or paste your Markdown or HTML here...';
+        } else if (convertDirection.value === 'md-to-html') {
           inputType.textContent = 'Markdown';
           outputType.textContent = 'HTML';
           markdownInput.placeholder = 'Type or paste your Markdown here...';
@@ -274,8 +330,65 @@
         }
       }
       
+      // Detect if content is HTML
+      function isHTML(content) {
+        if (!content || content.trim() === '') return false;
+        const trimmed = content.trim();
+        // Check for common HTML patterns
+        const htmlPatterns = [
+          /^<!DOCTYPE\s+html/i,
+          /^<html[\s>]/i,
+          /^<head[\s>]/i,
+          /^<body[\s>]/i,
+          /^<div[\s>]/i,
+          /^<p[\s>]/i,
+          /^<span[\s>]/i,
+          /^<h[1-6][\s>]/i,
+          /^<(ul|ol|li)[\s>]/i,
+          /^<(table|tr|td|th)[\s>]/i,
+          /^<(a|img|br|hr)[\s>\/]/i,
+          /^<(strong|em|b|i|u)[\s>]/i,
+          /^<(section|article|header|footer|nav|main|aside)[\s>]/i
+        ];
+        
+        // Check if content starts with an HTML tag pattern
+        for (const pattern of htmlPatterns) {
+          if (pattern.test(trimmed)) return true;
+        }
+        
+        // Check for significant HTML tag presence in content
+        const tagCount = (content.match(/<[a-z][a-z0-9]*[\s>\/]/gi) || []).length;
+        const closingTagCount = (content.match(/<\/[a-z][a-z0-9]*>/gi) || []).length;
+        
+        // If there are multiple HTML tags, likely HTML content
+        if (tagCount >= 2 && closingTagCount >= 1) return true;
+        
+        return false;
+      }
+      
+      // Get the effective conversion direction (handles auto mode)
+      function getEffectiveDirection() {
+        if (convertDirection.value === 'auto') {
+          return isHTML(markdownInput.value) ? 'html-to-md' : 'md-to-html';
+        }
+        return convertDirection.value;
+      }
+      
       function convertContent() {
-        if (convertDirection.value === 'md-to-html') {
+        const effectiveDirection = getEffectiveDirection();
+        
+        // Update labels dynamically in auto mode
+        if (convertDirection.value === 'auto') {
+          if (effectiveDirection === 'md-to-html') {
+            inputType.textContent = 'Detected: Markdown';
+            outputType.textContent = 'HTML';
+          } else {
+            inputType.textContent = 'Detected: HTML';
+            outputType.textContent = 'Markdown';
+          }
+        }
+        
+        if (effectiveDirection === 'md-to-html') {
           // Markdown to HTML conversion
           htmlOutput.value = marked.parse(markdownInput.value);
         } else {
@@ -291,7 +404,9 @@
       }
       
       function updatePreview() {
-        if (convertDirection.value === 'md-to-html') {
+        const effectiveDirection = getEffectiveDirection();
+        
+        if (effectiveDirection === 'md-to-html') {
           previewDiv.innerHTML = marked.parse(markdownInput.value);
         } else {
           // For HTML to Markdown, we'll show the HTML preview
