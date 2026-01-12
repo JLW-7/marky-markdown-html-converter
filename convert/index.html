@@ -306,7 +306,7 @@
   </div>
 
   <!-- Main Container -->
-  <div class="max-w-6xl mx-auto mt-20 px-6 flex-grow">
+  <div class="max-w-7xl mx-auto mt-20 px-4 md:px-6 flex-grow">
     <!-- Title -->
     <div class="text-center mb-12">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">
@@ -330,27 +330,27 @@
     </div>
 
     <!-- Converter UI -->
-    <div class="grid md:grid-cols-2 gap-8 mb-8">
+    <div class="grid lg:grid-cols-2 gap-6 mb-8">
       <!-- Input Panel -->
-      <div class="flex flex-col glass-effect p-6 rounded-2xl card-shadow">
-        <div class="flex justify-between items-center mb-4">
-          <div>
+      <div class="flex flex-col glass-effect p-4 md:p-6 rounded-2xl card-shadow min-w-0">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+          <div class="flex-shrink-0">
             <label class="text-xl font-semibold text-white">Input</label>
             <div id="inputType" class="text-teal-200 text-sm mt-1">Markdown</div>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <!-- File Upload Button -->
-            <label class="cursor-pointer bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-sm font-semibold">
+            <label class="cursor-pointer bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-sm font-semibold flex-shrink-0">
               <i class="fas fa-upload"></i>
-              <span>Upload</span>
+              <span class="hidden sm:inline">Upload</span>
               <input type="file" id="fileUpload" accept=".md,.html,.htm,.txt,.css,.js" class="hidden">
             </label>
-            <div class="flex space-x-1 text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1">
-              <button id="showCode" class="px-4 py-2 rounded-xl tab-active transition-all">
-                <i class="fas fa-code mr-1"></i>Code
+            <div class="flex space-x-1 text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1 flex-shrink-0">
+              <button id="showCode" class="px-3 py-2 rounded-xl tab-active transition-all">
+                <i class="fas fa-code sm:mr-1"></i><span class="hidden sm:inline">Code</span>
               </button>
-              <button id="showPreview" class="px-4 py-2 rounded-xl hover:bg-white/50 transition-all">
-                <i class="fas fa-eye mr-1"></i>Preview
+              <button id="showPreview" class="px-3 py-2 rounded-xl hover:bg-white/50 transition-all">
+                <i class="fas fa-eye sm:mr-1"></i><span class="hidden sm:inline">Preview</span>
               </button>
             </div>
           </div>
@@ -364,17 +364,17 @@
       </div>
 
       <!-- Output Panel -->
-      <div class="flex flex-col glass-effect p-6 rounded-2xl card-shadow">
-        <div class="flex justify-between items-center mb-4">
-          <div>
+      <div class="flex flex-col glass-effect p-4 md:p-6 rounded-2xl card-shadow min-w-0">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+          <div class="flex-shrink-0">
             <label class="text-xl font-semibold text-white">Output</label>
             <div id="outputType" class="text-teal-200 text-sm mt-1">HTML</div>
           </div>
-          <div class="flex items-center">
+          <div class="flex items-center flex-shrink-0">
             <span id="copySuccess" class="text-teal-300 text-sm mr-3 hidden copy-success">
               <i class="fas fa-check mr-1"></i>Copied!
             </span>
-            <button id="copyOutputBtn" class="text-blue-800 bg-teal-300 hover:bg-teal-200 px-4 py-2 rounded-xl transition-all flex items-center gap-2 hover:teal-glow">
+            <button id="copyOutputBtn" class="text-blue-800 bg-teal-300 hover:bg-teal-200 px-3 py-2 rounded-xl transition-all flex items-center gap-2 hover:teal-glow text-sm">
               <i class="fas fa-copy"></i>
               <span>Copy</span>
             </button>
