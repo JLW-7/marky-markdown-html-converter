@@ -45,215 +45,44 @@
     }
   </style>
 </head>
-<body class="bg-blue-500 text-white hero-pattern">
-  <!-- Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-blue-700/1 backdrop-blur border-b-2 border-blue-800/20 py-4 px-6">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <div class="flex items-center">
-        <div class="w-10 h-10 rounded-full bg-teal-400 flex items-center justify-center mr-3">
-          <i class="fas fa-code text-blue-800"></i>
-        </div>
-        <span class="text-xl font-bold">Markdown ↔ HTML</span>
-      </div>
-      
-      <div class="hidden md:flex items-center space-x-8">
-        <a href="#features" class="hover:text-teal-200 transition">Features</a>
-        <a href="#how-it-works" class="hover:text-teal-200 transition">How It Works</a>
-        <a href="#examples" class="hover:text-teal-200 transition">Examples</a>
-        <a href="#faq" class="hover:text-teal-200 transition">FAQ</a>
-      </div>
-      
-      <div class="flex items-center gap-4">
-        <a href="https://github.com/JLW-7/convert-md---html" target="_blank" class="flex items-center bg-blue-800 text-white font-semibold py-2 px-4 rounded-2xl shadow-md hover:scale-105 transition text-sm">
-          <i class="fab fa-github mr-2"></i> <span class="hidden sm:inline">GitHub</span>
+
+<body class="bg-neutral-950 text-neutral-100 hero-pattern scroll-smooth min-h-screen flex flex-col">
+
+  <!-- NAV -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur border-b border-neutral-800 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <span class="text-sm font-medium text-neutral-200">Markdown ↔ HTML</span>
+      <div class="flex gap-3">
+        <a href="./convert/index.html"
+           class="bg-white text-black text-sm font-medium px-4 py-2 rounded-full hover:opacity-90 transition">
+          Try It
         </a>
-        
-        <a href="/md-html-converter/convert/" class="bg-gradient-to-r from-blue-200 to-teal-200 text-blue-800 font-semibold py-2 px-4 rounded-2xl hover:scale-105 transition text-sm">
-          Try Now
+        <a href="https://github.com/"
+           class="border border-neutral-700 text-neutral-300 text-sm font-medium px-4 py-2 rounded-full hover:bg-neutral-900 transition">
+          Star on GitHub
         </a>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="pt-32 pb-20 px-4 text-center max-w-4xl mx-auto">
-    <div class="mb-6">
-      <span class="bg-teal-400/20 text-teal-200 px-4 py-2 rounded-full text-sm font-medium">
-        ✨ Fast, Accurate & Free
-      </span>
-    </div>
-    
-    <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight">
-      Convert Between 
-      <span class="relative inline-block">
-        <span class="relative z-10">Markdown & HTML</span>
-        <span class="absolute bottom-0 left-0 w-full h-3 bg-teal-300/70 -rotate-1 -z-0"></span>
-      </span> 
-      Instantly
-    </h1>
-    
-    <p class="text-xl md:text-2xl text-white/80 mb-10 max-w-3xl mx-auto">
-      <span class="text-teal-300 font-bold">Markdown ↔ HTML</span> is your simple, fast and accurate 
-      <span class="text-teal-300 font-bold">online converter</span> for writers, developers, and everyone in between.
-    </p>
+  <!-- HERO -->
+  <main class="flex-1 flex items-center justify-center px-6 pt-20 pb-12">
+    <div class="max-w-3xl text-center">
+      <h1 class="text-4xl md:text-5xl font-semibold tracking-tight mb-6">
+        Markdown ↔ HTML
+      </h1>
+      <p class="text-neutral-400 text-base md:text-lg mb-10">
+        A clean, fast online converter between Markdown and HTML.
+      </p>
 
-    <div class="flex flex-col sm:flex-row justify-center gap-6 mb-16">
-      <a href="/md-html-converter/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 font-semibold px-8 py-4 rounded-full hover:scale-105 transition glow flex items-center justify-center gap-2">
-        <i class="fas fa-bolt"></i>
-        Start Converting Now
-      </a>
-      <a href="#features" class="border-2 border-teal-200 text-teal-200 font-semibold px-8 py-4 rounded-full hover:bg-teal-300 hover:text-blue-800 transition flex items-center justify-center gap-2">
-        <i class="fas fa-info-circle"></i>
-        Learn More
-      </a>
-    </div>
-    
-    <!-- Mini Demo Preview -->
-    <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-3xl mx-auto border border-white/20">
-      <div class="flex flex-col md:flex-row gap-6">
-        <div class="flex-1">
-          <h3 class="text-teal-200 font-semibold mb-3 text-left">Markdown Input</h3>
-          <div class="code-block text-sm">
-            # Hello World<br>
-            This is **bold** text<br>
-            - List item 1<br>
-            - List item 2<br>
-            [A link](https://example.com)
-          </div>
-        </div>
-        
-        <div class="flex items-center justify-center my-4 md:my-0">
-          <div class="bg-teal-400 rounded-full p-2">
-            <i class="fas fa-arrows-alt-h text-blue-800"></i>
-          </div>
-        </div>
-        
-        <div class="flex-1">
-          <h3 class="text-teal-200 font-semibold mb-3 text-left">HTML Output</h3>
-          <div class="code-block text-sm">
-            &lt;h1&gt;Hello World&lt;/h1&gt;<br>
-            &lt;p&gt;This is &lt;strong&gt;bold&lt;/strong&gt; text&lt;/p&gt;<br>
-            &lt;ul&gt;<br>
-            &nbsp;&nbsp;&lt;li&gt;List item 1&lt;/li&gt;<br>
-            &nbsp;&nbsp;&lt;li&gt;List item 2&lt;/li&gt;<br>
-            &lt;/ul&gt;<br>
-            &lt;a href="https://example.com"&gt;A link&lt;/a&gt;
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section id="features" class="py-20 px-4 max-w-7xl mx-auto">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-5xl font-bold mb-6">Powerful Features</h2>
-      <p class="text-xl text-white/80 max-w-3xl mx-auto">Everything you need for seamless Markdown to HTML conversion and back</p>
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      <div class="feature-card rounded-2xl p-8 hover:glow floating" style="animation-delay: 0s;">
-        <div class="w-16 h-16 rounded-full bg-teal-400/20 flex items-center justify-center mb-6">
-          <i class="fas fa-bolt text-teal-400 text-2xl"></i>
-        </div>
-        <h3 class="text-teal-200 text-xl font-semibold mb-4">Live Preview</h3>
-        <p class="text-white/80">Instantly view your Markdown or HTML output as you edit it, no need to refresh the page.</p>
-      </div>
-      
-      <div class="feature-card rounded-2xl p-8 hover:glow floating" style="animation-delay: 1s;">
-        <div class="w-16 h-16 rounded-full bg-teal-400/20 flex items-center justify-center mb-6">
-          <i class="fas fa-exchange-alt text-teal-400 text-2xl"></i>
-        </div>
-        <h3 class="text-teal-200 text-xl font-semibold mb-4">Bidirectional Conversion</h3>
-        <p class="text-white/80">Easily switch between Markdown and HTML formats with just a click.</p>
-      </div>
-      
-      <div class="feature-card rounded-2xl p-8 hover:glow floating" style="animation-delay: 2s;">
-        <div class="w-16 h-16 rounded-full bg-teal-400/20 flex items-center justify-center mb-6">
-          <i class="fas fa-download text-teal-400 text-2xl"></i>
-        </div>
-        <h3 class="text-teal-200 text-xl font-semibold mb-4">Download & Export</h3>
-        <p class="text-white/80">Download or export your converted file in the desired format with ease.</p>
-      </div>
-      
-      <div class="feature-card rounded-2xl p-8 hover:glow floating" style="animation-delay: 1s;"> 
-        <div class="w-16 h-16 rounded-full bg-teal-400/20 flex items-center justify-center mb-6">
-          <i class="fas fa-copy text-teal-400 text-2xl"></i>
-        </div>
-        <h3 class="text-teal-200 text-xl font-semibold mb-4">One-Click Copy</h3>
-        <p class="text-white/80">Copy your converted code to clipboard with a single click for quick integration.</p>
-      </div>
-      
-      <div class="feature-card rounded-2xl p-8 hover:glow floating" style="animation-delay: 2s;">
-        <div class="w-16 h-16 rounded-full bg-teal-400/20 flex items-center justify-center mb-6">
-          <i class="fas fa-magic text-teal-400 text-2xl"></i>
-        </div>
-        <h3 class="text-teal-200 text-xl font-semibold mb-4">Syntax Highlighting</h3>
-        <p class="text-white/80">Beautiful syntax highlighting for both Markdown and HTML to improve readability.</p>
-      </div>
-      
-      <div class="feature-card rounded-2xl p-8 hover:glow floating" style="animation-delay: 3s;">
-        <div class="w-16 h-16 rounded-full bg-teal-400/20 flex items-center justify-center mb-6">
-          <i class="fas fa-mobile-alt text-teal-400 text-2xl"></i>
-        </div>
-        <h3 class="text-teal-200 text-xl font-semibold mb-4">Fully Responsive</h3>
-        <p class="text-white/80">Works perfectly on all devices - desktop, tablet, and mobile.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works Section -->
-  <section id="how-it-works" class="py-20 px-4">
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-5xl font-bold mb-6">How It Works</h2>
-        <p class="text-xl text-white/80 max-w-3xl mx-auto">Convert between Markdown and HTML in just three simple steps</p>
-      </div>
-      
-      <div class="flex flex-col md:flex-row justify-between items-center gap-12">
-        <div class="text-center flex-1 fade-in">
-          <div class="w-20 h-20 rounded-full bg-teal-400 flex items-center justify-center mx-auto mb-6">
-            <span class="text-blue-800 font-bold text-2xl">1</span>
-          </div>
-          <h3 class="text-teal-300 text-xl font-semibold mb-4">Input Your Content</h3>
-          <p class="text-white/80">Paste your Markdown or HTML code into the input editor, or start typing directly.</p>
-        </div>
-        
-        <div class="hidden md:block">
-          <i class="fas fa-arrow-right text-teal-400 text-3xl"></i>
-        </div>
-        <div class="block md:hidden my-4">
-          <i class="fas fa-arrow-down text-teal-400 text-3xl"></i>
-        </div>
-        
-        <div class="text-center flex-1 fade-in">
-          <div class="w-20 h-20 rounded-full bg-teal-400 flex items-center justify-center mx-auto mb-6">
-            <span class="text-blue-800 font-bold text-2xl">2</span>
-          </div>
-          <h3 class="text-teal-300 text-xl font-semibold mb-4">Convert Instantly</h3>
-          <p class="text-white/80">Watch as your content is converted in real-time with our powerful conversion engine.</p>
-        </div>
-        
-        <div class="hidden md:block">
-          <i class="fas fa-arrow-right text-teal-400 text-3xl"></i>
-        </div>
-        <div class="block md:hidden my-4">
-          <i class="fas fa-arrow-down text-teal-400 text-3xl"></i>
-        </div>
-        
-        <div class="text-center flex-1 fade-in">
-          <div class="w-20 h-20 rounded-full bg-teal-400 flex items-center justify-center mx-auto mb-6">
-            <span class="text-blue-800 font-bold text-2xl">3</span>
-          </div>
-          <h3 class="text-teal-300 text-xl font-semibold mb-4">Use Your Output</h3>
-          <p class="text-white/80">Copy, download, or further edit your converted content as needed.</p>
-        </div>
-      </div>
-      
-      <div class="text-center mt-16">
-        <a href="/md-html-converter/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 font-semibold px-8 py-4 rounded-full hover:scale-105 transition inline-flex items-center gap-2">
-          <i class="fas fa-play"></i>
-          Try It Now
+      <div class="flex justify-center gap-4 mb-14">
+        <a href="./convert/index.html"
+           class="bg-white text-black px-6 py-3 rounded-full text-sm font-medium hover:opacity-90 transition">
+          Open Converter
+        </a>
+        <a href="https://github.com/"
+           class="border border-neutral-700 text-neutral-300 px-6 py-3 rounded-full text-sm font-medium hover:bg-neutral-900 transition">
+          View Source
         </a>
       </div>
 
@@ -265,77 +94,20 @@
             </p>
         </div>
 
-  <!-- FAQ Section -->
-  <section id="faq" class="py-20 px-4">
-    <div class="max-w-4xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-5xl font-bold mb-6">Frequently Asked Questions</h2>
-        <p class="text-xl text-white/80">Everything you need to know about this tool.</p>
-      </div>
-      
-      <div class="space-y-6">
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          <h3 class="text-teal-300 text-xl font-semibold mb-3">Is it completely free to use?</h3>
-          <p class="text-white/80">Yes! This tool is completely free to use with no limitations.</p>
+        <div class="p-6 rounded-xl border border-neutral-600 bg-white bg-opacity-10">
+            <h3 class="text-lg font-semibold mb-2">Live Preview</h3>
+            <p class="text-sm text-neutral-200">
+              Preview how your input code looks live.
+            </p>
+        </div>    
+        <div class="p-6 rounded-xl border border-neutral-600 bg-white bg-opacity-10">
+            <h3 class="text-lg font-semibold mb-2">Copy & Download</h3>
+            <p class="text-sm text-neutral-200">
+            Copy results instantly or download files.
+            </p>
         </div>
-        
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          <h3 class="text-teal-300 text-xl font-semibold mb-3">Does it support all Markdown syntax?</h3>
-          <p class="text-white/80">This tool supports CommonMark specification along with GitHub Flavored Markdown (GFM) extensions like tables, strikethrough, and task lists.</p>
-        </div>
-        
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          <h3 class="text-teal-300 text-xl font-semibold mb-3">Can I convert HTML back to Markdown?</h3>
-          <p class="text-white/80">Absolutely! This tool provides bidirectional conversion, allowing you to convert HTML back to clean, readable Markdown.</p>
-        </div>
-        
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          <h3 class="text-teal-300 text-xl font-semibold mb-3">Is my data stored on servers?</h3>
-          <p class="text-white/80">No, all conversion happens directly in your browser. Your content never leaves your device, ensuring complete privacy.</p>
-        </div>
-        
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-          <h3 class="text-teal-300 text-xl font-semibold mb-3">Can I use it on mobile devices?</h3>
-          <p class="text-white/80">Yes, this tool is fully responsive and works perfectly on all devices including smartphones and tablets.</p>
-        </div>
-      </div>
     </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="py-20 px-4 text-center">
-    <div class="max-w-4xl mx-auto">
-      <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to Get Started?</h2>
-      <p class="text-xl text-white/80 mb-10 max-w-2xl mx-auto">Join thousands of users who rely on this website for their Markdown to HTML conversion needs.</p>
-      
-      <div class="flex flex-col sm:flex-row justify-center gap-6">
-        <a href="/md-html-converter/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 text-xl font-semibold px-8 py-4 rounded-full hover:scale-105 transition glow flex items-center justify-center gap-2">
-          <i class="fas fa-bolt"></i>
-          Start Converting Now
-        </a>
-        <a href="https://github.com/JLW-7/convert-md---html" target="_blank" class="border-2 border-teal-300 text-teal-300 text-xl font-semibold px-8 py-4 rounded-full hover:bg-teal-300 hover:text-blue-800 transition flex items-center justify-center gap-2">
-          <i class="fab fa-github"></i>
-          Star on GitHub
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section
-  id="explore-more"
-  class="group py-16 px-4 bg-blue-500/1 hover:bg-blue-400 transition-colors duration-500 cursor-pointer">
-    <a href="https://julyw.com/projects/" target="_blank">
-      <div class="flex justify-center items-center space-x-20 text-white text-center">
-        <h1
-          class="text-5xl font-semibold tracking-wide transform transition-all duration-500 group-hover:-translate-x-3">
-          Explore more projects like these
-        </h1>
-        <i
-          class="fas fa-arrow-right text-5xl transform transition-transform duration-500 group-hover:translate-x-3"
-        ></i>
-      </div>  
-    </a>
-  </section>
+  </main>
 
   <!-- FOOTER -->
   <footer class="border-t border-neutral-900 py-6 text-center text-sm text-neutral-500">
