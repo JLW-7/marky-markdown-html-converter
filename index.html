@@ -1,87 +1,53 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Markdown ↔ HTML Converter</title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+
+  <!-- Inter (Next.js default) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Prism -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
     body {
-      font-family: 'Inter', sans-serif;
-      position: static;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
-    
-    .feature-card {
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid #5eead4;
-    }
-    
+
     .hero-pattern {
-      background-image: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 55%), 
-                        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 55%);
+      background:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,0.04), transparent 55%),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,0.02), transparent 55%);
     }
-    
-    .glow {
-      box-shadow: 0 0 20px rgba(94, 234, 212, 0.5);
+
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 0.3s ease;
     }
-    
-    .floating {
-      animation: floating 3s ease-in-out infinite;
-    }
-    
-    @keyframes floating {
-      0% { transform: translate(0, 0px); }
-      50% { transform: translate(0, -10px); }
-      100% { transform: translate(0, 0px); }
-    }
-    
-    .typewriter {
-      overflow: hidden;
-      border-right: .15em solid #5eead4;
-      white-space: nowrap;
-      margin: 0 auto;
-      animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
-    }
-    
-    @keyframes typing {
-      from { width: 0 }
-      to { width: 100% }
-    }
-    
-    @keyframes blink-caret {
-      from, to { border-color: transparent }
-      50% { border-color: #5eead4; }
-    }
-    
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
+
     .code-block {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
+      background: #0a0a0a;
+      border-radius: 10px;
       padding: 16px;
-      font-family: 'Courier New', monospace;
-      border-left: 4px solid #5eead4;
-      color: white;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      border: 1px solid rgba(255,255,255,0.08);
     }
   </style>
 </head>
 <body class="bg-blue-500 text-white hero-pattern">
   <!-- Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-blue-700/1 backdrop-blur py-4 px-6 border-b-2 border-blue-800/20">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-blue-700/1 backdrop-blur border-b-2 border-blue-800/20 py-4 px-6">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <div class="flex items-center">
         <div class="w-10 h-10 rounded-full bg-teal-400 flex items-center justify-center mr-3">
@@ -102,24 +68,9 @@
           <i class="fab fa-github mr-2"></i> <span class="hidden sm:inline">GitHub</span>
         </a>
         
-        <a href="/convert" class="bg-gradient-to-r from-blue-200 to-teal-200 text-blue-800 font-semibold py-2 px-4 rounded-2xl hover:scale-105 transition text-sm">
+        <a href="/md-html-converter/convert/" class="bg-gradient-to-r from-blue-200 to-teal-200 text-blue-800 font-semibold py-2 px-4 rounded-2xl hover:scale-105 transition text-sm">
           Try Now
         </a>
-        
-        <!-- Mobile menu button -->
-        <button id="mobile-menu-button" class="md:hidden text-white">
-          <i class="fas fa-bars text-xl"></i>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Mobile menu -->
-    <div id="mobile-menu" class="md:hidden hidden bg-blue-700/90 backdrop-blur-md mt-4 py-4 rounded-lg">
-      <div class="flex flex-col space-y-4 px-6">
-        <a href="#features" class="hover:text-teal-200 transition">Features</a>
-        <a href="#how-it-works" class="hover:text-teal-200 transition">How It Works</a>
-        <a href="#examples" class="hover:text-teal-200 transition">Examples</a>
-        <a href="#faq" class="hover:text-teal-200 transition">FAQ</a>
       </div>
     </div>
   </nav>
@@ -147,7 +98,7 @@
     </p>
 
     <div class="flex flex-col sm:flex-row justify-center gap-6 mb-16">
-      <a href="/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 font-semibold px-8 py-4 rounded-full hover:scale-105 transition glow flex items-center justify-center gap-2">
+      <a href="/md-html-converter/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 font-semibold px-8 py-4 rounded-full hover:scale-105 transition glow flex items-center justify-center gap-2">
         <i class="fas fa-bolt"></i>
         Start Converting Now
       </a>
@@ -300,89 +251,19 @@
       </div>
       
       <div class="text-center mt-16">
-        <a href="/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 font-semibold px-8 py-4 rounded-full hover:scale-105 transition inline-flex items-center gap-2">
+        <a href="/md-html-converter/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 font-semibold px-8 py-4 rounded-full hover:scale-105 transition inline-flex items-center gap-2">
           <i class="fas fa-play"></i>
           Try It Now
         </a>
       </div>
-    </div>
-  </section>
 
-  <!-- Examples Section -->
-  <section id="examples" class="py-20 px-4 max-w-7xl mx-auto">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-5xl font-bold mb-6">Conversion Examples</h2>
-      <p class="text-xl text-white/80 max-w-3xl mx-auto">See how Markdown translates to HTML and vice versa</p>
-    </div>
-    
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-        <h3 class="text-teal-300 text-2xl font-semibold mb-6 text-center">Markdown to HTML</h3>
-        
-        <div class="mb-8">
-          <h4 class="text-white font-semibold mb-3">Markdown Input:</h4>
-          <div class="code-block">
-            # Heading 1<br>
-            ## Heading 2<br>
-            **Bold text** and *italic text*<br>
-            - List item 1<br>
-            - List item 2<br>
-            [Link text](https://example.com)<br>
-            `inline code`<br>
-            > Blockquote
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+        <div class="p-6 rounded-xl border border-neutral-600 bg-white bg-opacity-10">
+            <h3 class="text-lg font-semibold mb-2">Two-way Conversion</h3>
+            <p class="text-sm text-neutral-200">
+            Convert between .md and .html real-time as you type.
+            </p>
         </div>
-        
-        <div>
-          <h4 class="text-white font-semibold mb-3">HTML Output:</h4>
-          <div class="code-block">
-            &lt;h1&gt;Heading 1&lt;/h1&gt;<br>
-            &lt;h2&gt;Heading 2&lt;/h2&gt;<br>
-            &lt;p&gt;&lt;strong&gt;Bold text&lt;/strong&gt; and &lt;em&gt;italic text&lt;/em&gt;&lt;/p&gt;<br>
-            &lt;ul&gt;<br>
-            &nbsp;&nbsp;&lt;li&gt;List item 1&lt;/li&gt;<br>
-            &nbsp;&nbsp;&lt;li&gt;List item 2&lt;/li&gt;<br>
-            &lt;/ul&gt;<br>
-            &lt;a href="https://example.com"&gt;Link text&lt;/a&gt;<br>
-            &lt;code&gt;inline code&lt;/code&gt;<br>
-            &lt;blockquote&gt;Blockquote&lt;/blockquote&gt;
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-        <h3 class="text-teal-300 text-2xl font-semibold mb-6 text-center">HTML to Markdown</h3>
-        
-        <div class="mb-8">
-          <h4 class="text-white font-semibold mb-3">HTML Input:</h4>
-          <div class="code-block">
-            &lt;h1&gt;Main Title&lt;/h1&gt;<br>
-            &lt;p&gt;A paragraph with &lt;strong&gt;bold&lt;/strong&gt; and &lt;em&gt;italic&lt;/em&gt; text.&lt;/p&gt;<br>
-            &lt;ul&gt;<br>
-            &nbsp;&nbsp;&lt;li&gt;First item&lt;/li&gt;<br>
-            &nbsp;&nbsp;&lt;li&gt;Second item&lt;/li&gt;<br>
-            &lt;/ul&gt;<br>
-            &lt;blockquote&gt;<br>
-            &nbsp;&nbsp;&lt;p&gt;An insightful quote&lt;/p&gt;<br>
-            &lt;/blockquote&gt;<br>
-            &lt;code&gt;console.log('Hello');&lt;/code&gt;
-          </div>
-        </div>
-        
-        <div>
-          <h4 class="text-white font-semibold mb-3">Markdown Output:</h4>
-          <div class="code-block">
-            # Main Title<br><br>
-            A paragraph with **bold** and *italic* text.<br><br>
-            - First item<br>
-            - Second item<br><br>
-            > An insightful quote<br><br>
-            `console.log('Hello');`
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- FAQ Section -->
   <section id="faq" class="py-20 px-4">
@@ -428,7 +309,7 @@
       <p class="text-xl text-white/80 mb-10 max-w-2xl mx-auto">Join thousands of users who rely on this website for their Markdown to HTML conversion needs.</p>
       
       <div class="flex flex-col sm:flex-row justify-center gap-6">
-        <a href="/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 text-xl font-semibold px-8 py-4 rounded-full hover:scale-105 transition glow flex items-center justify-center gap-2">
+        <a href="/md-html-converter/convert" class="bg-gradient-to-r from-blue-200 to-teal-300 text-blue-800 text-xl font-semibold px-8 py-4 rounded-full hover:scale-105 transition glow flex items-center justify-center gap-2">
           <i class="fas fa-bolt"></i>
           Start Converting Now
         </a>
@@ -442,7 +323,7 @@
 
   <section
   id="explore-more"
-  class="group py-16 px-4 bg-blue-500/1 hover:bg-blue-400 transition-colors duration-500 cursor-pointer mt-16">
+  class="group py-16 px-4 bg-blue-500/1 hover:bg-blue-400 transition-colors duration-500 cursor-pointer">
     <a href="https://julyw.com/projects/" target="_blank">
       <div class="flex justify-center items-center space-x-20 text-white text-center">
         <h1
@@ -456,91 +337,11 @@
     </a>
   </section>
 
-
-  <!-- Footer -->
-  <footer class="bg-teal-300 px-4 py-12">
-    <div class="max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center gap-8">
-        <div class="text-center md:text-left">
-          <div class="flex items-center justify-center md:justify-start mb-4">
-            <div class="w-10 h-10 rounded-full bg-blue-800 flex items-center justify-center mr-3">
-              <i class="fas fa-code text-teal-300"></i>
-            </div>
-            <span class="text-xl font-bold text-blue-800">Markdown ↔ HTML</span>
-          </div>
-          <p class="text-blue-800 max-w-md">
-            Your simple, fast and accurate online Markdown to HTML converter.
-          </p>
-        </div>
-        
-        <div class="flex gap-6">
-          <a href="https://github.com/JLW-7/convert-md---html" target="_blank" class="w-12 h-12 rounded-full bg-blue-800 flex items-center justify-center text-teal-300 hover:scale-110 transition">
-            <i class="fab fa-github"></i>
-          </a>
-          <a href="#" class="w-12 h-12 rounded-full bg-blue-800 flex items-center justify-center text-teal-300 hover:scale-110 transition">
-            <i class="fab fa-twitter"></i>
-          </a>
-          <a href="#" class="w-12 h-12 rounded-full bg-blue-800 flex items-center justify-center text-teal-300 hover:scale-110 transition">
-            <i class="fas fa-envelope"></i>
-          </a>
-        </div>
-      </div>
-      
-      <div class="border-t border-blue-800/30 mt-8 pt-8 text-center text-blue-800">
-        <p>
-          Made with love by 
-          <a href="https://julyw.com/" class="font-semibold hover:underline">July Wu</a>.
-          This project is <a href="https://github.com/JLW-7/convert-md---html" class="font-semibold hover:underline">open source on github</a>. If you find it helpful, give it a ★ and feel free to contribute!
-        </p>
-      </div>
-    </div>
+  <!-- FOOTER -->
+  <footer class="border-t border-neutral-900 py-6 text-center text-sm text-neutral-500">
+    <p>
+        Made with ❤️ by <a href="https://julyw.com" target="_blank" class="font-medium text-white hover:underline">July Wu</a>. This project is open source on <a href="https://github.com/JLW-7" target="_blank" class="font-medium text-white  hover:underline">GitHub</a>.
+    </p>
   </footer>
-
-  <script>
-    // Mobile menu toggle
-    document.getElementById('mobile-menu-button').addEventListener('click', function() {
-      const menu = document.getElementById('mobile-menu');
-      menu.classList.toggle('hidden');
-    });
-    
-    // Fade in animation on scroll
-    const fadeElements = document.querySelectorAll('.fade-in');
-    
-    const fadeInOnScroll = () => {
-      fadeElements.forEach(element => {
-        const elementTop = element.getBoundingClientRect().top;
-        const elementVisible = 150;
-        
-        if (elementTop < window.innerHeight - elementVisible) {
-          element.classList.add('visible');
-        }
-      });
-    };
-    
-    window.addEventListener('scroll', fadeInOnScroll);
-    // Initial check
-    fadeInOnScroll();
-    
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href');
-        if (targetId === '#') return;
-        
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 80,
-            behavior: 'smooth'
-          });
-          
-          // Close mobile menu if open
-          document.getElementById('mobile-menu').classList.add('hidden');
-        }
-      });
-    });
-  </script>
 </body>
 </html>
