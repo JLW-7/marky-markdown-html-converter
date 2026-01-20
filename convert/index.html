@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Convert Now – Markdown ↔ HTML</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -332,25 +335,25 @@
     <!-- Converter UI -->
     <div class="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
       <!-- Input Panel -->
-      <div class="flex flex-col glass-effect p-4 md:p-6 rounded-2xl card-shadow min-w-0 overflow-hidden">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+      <div class="flex flex-col glass-effect p-4 md:p-6 rounded-2xl card-shadow min-w-0">
+        <div class="flex justify-between items-center mb-4 gap-2">
           <div class="flex-shrink-0">
             <label class="text-xl font-semibold text-white">Input</label>
             <div id="inputType" class="text-teal-200 text-sm mt-1">Auto Detect</div>
           </div>
-          <div class="flex items-center gap-2 flex-nowrap overflow-hidden">
+          <div class="flex items-center gap-2 flex-wrap justify-end">
             <!-- File Upload Button -->
-            <label class="cursor-pointer bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-sm font-semibold flex-shrink-0">
+            <label class="cursor-pointer bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-sm font-semibold">
               <i class="fas fa-upload"></i>
-              <span class="hidden sm:inline md:hidden lg:inline">Upload</span>
+              <span>Upload</span>
               <input type="file" id="fileUpload" accept=".md,.html,.htm,.txt,.css,.js" class="hidden">
             </label>
-            <div class="flex space-x-1 text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1 flex-shrink-0">
-              <button id="showCode" class="px-3 py-2 rounded-xl tab-active transition-all">
-                <i class="fas fa-code sm:mr-1 md:mr-0 lg:mr-1"></i><span class="hidden sm:inline md:hidden lg:inline">Code</span>
+            <div class="flex text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1">
+              <button id="showCode" class="px-3 py-1.5 rounded-lg tab-active transition-all">
+                <i class="fas fa-code mr-1"></i><span>Code</span>
               </button>
-              <button id="showPreview" class="px-3 py-2 rounded-xl hover:bg-white/50 transition-all">
-                <i class="fas fa-eye sm:mr-1 md:mr-0 lg:mr-1"></i><span class="hidden sm:inline md:hidden lg:inline">Preview</span>
+              <button id="showPreview" class="px-3 py-1.5 rounded-lg hover:bg-white/50 transition-all">
+                <i class="fas fa-eye mr-1"></i><span>Preview</span>
               </button>
             </div>
           </div>
