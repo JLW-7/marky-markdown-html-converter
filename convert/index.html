@@ -3,10 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Convert Now – Markdown ↔ HTML</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/turndown-plugin-gfm/dist/turndown-plugin-gfm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -65,6 +72,82 @@
     .teal-glow {
       box-shadow: 0 0 15px rgba(45, 212, 191, 0.5);
     }
+    
+    /* Modal styles */
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Toggle switch */
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: #cbd5e1;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .toggle-switch.active {
+      background: #2dd4bf;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+    
+    .toggle-switch.active::after {
+      transform: translateX(24px);
+    }
+    
+    /* Syntax highlighting in preview */
+    .preview-content pre {
+      background: #f6f8fa;
+      border-radius: 6px;
+      padding: 16px;
+      overflow-x: auto;
+    }
+    
+    .preview-content code {
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+    }
+    
+    .preview-content pre code {
+      background: transparent;
+      padding: 0;
+    }
+    
+    .preview-content code:not(pre code) {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body class="gradient-bg text-white min-h-screen flex flex-col">
@@ -75,16 +158,165 @@
       <span>Back</span>
     </a>
   </div>
+  
+  <!-- Settings Button -->
+  <div class="absolute top-4 right-4 z-10">
+    <button id="settingsBtn" class="bg-teal-300 text-blue-800 font-semibold px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 hover:scale-105">
+      <i class="fas fa-cog"></i>
+      <span>Settings</span>
+    </button>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center">
+    <div class="modal-content bg-white text-blue-900 rounded-2xl p-8 max-w-lg w-full mx-4 card-shadow max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Conversion Settings</h2>
+        <button id="closeSettings" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- HTML to Markdown Settings -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold mb-4 text-teal-600 flex items-center gap-2">
+          <i class="fas fa-file-code"></i>
+          HTML → Markdown Options
+        </h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Handle CSS/Style</label>
+              <p class="text-sm text-gray-500">How to convert embedded styles</p>
+            </div>
+            <select id="cssHandling" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300">
+              <option value="codeblock">Code Block</option>
+              <option value="extract">Extract to File</option>
+              <option value="strip">Strip/Remove</option>
+              <option value="preserve">Keep as HTML</option>
+            </select>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Handle JavaScript</label>
+              <p class="text-sm text-gray-500">How to convert script tags</p>
+            </div>
+            <select id="jsHandling" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300">
+              <option value="codeblock">Code Block</option>
+              <option value="extract">Extract to File</option>
+              <option value="strip" selected>Strip/Remove</option>
+              <option value="preserve">Keep as HTML</option>
+            </select>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Handle SVG</label>
+              <p class="text-sm text-gray-500">How to convert SVG elements</p>
+            </div>
+            <select id="svgHandling" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300">
+              <option value="preserve" selected>Keep as HTML</option>
+              <option value="extract">Extract to File</option>
+              <option value="placeholder">Image Placeholder</option>
+              <option value="strip">Strip/Remove</option>
+            </select>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Extract Base64 Images</label>
+              <p class="text-sm text-gray-500">Convert embedded images to files</p>
+            </div>
+            <div id="extractImages" class="toggle-switch" data-active="false"></div>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Use GFM (GitHub Flavored)</label>
+              <p class="text-sm text-gray-500">Tables, strikethrough, task lists</p>
+            </div>
+            <div id="useGfm" class="toggle-switch active" data-active="true"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Markdown to HTML Settings -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold mb-4 text-teal-600 flex items-center gap-2">
+          <i class="fab fa-markdown"></i>
+          Markdown → HTML Options
+        </h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Syntax Highlighting</label>
+              <p class="text-sm text-gray-500">Highlight code blocks</p>
+            </div>
+            <div id="syntaxHighlight" class="toggle-switch active" data-active="true"></div>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Generate Full HTML Page</label>
+              <p class="text-sm text-gray-500">Include &lt;html&gt;, &lt;head&gt;, &lt;body&gt;</p>
+            </div>
+            <div id="fullHtmlPage" class="toggle-switch" data-active="false"></div>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Include Default Styles</label>
+              <p class="text-sm text-gray-500">Add basic CSS for readability</p>
+            </div>
+            <div id="includeStyles" class="toggle-switch" data-active="false"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Output Settings -->
+      <div class="mb-6">
+        <h3 class="text-lg font-semibold mb-4 text-teal-600 flex items-center gap-2">
+          <i class="fas fa-download"></i>
+          Output Options
+        </h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="font-medium">Download Format</label>
+              <p class="text-sm text-gray-500">Single file or ZIP archive</p>
+            </div>
+            <select id="downloadFormat" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300">
+              <option value="single">Single File</option>
+              <option value="zip">ZIP Archive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-4">
+        <button id="resetSettings" class="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-300 transition-all">
+          Reset to Defaults
+        </button>
+        <button id="saveSettings" class="flex-1 bg-teal-400 text-blue-900 font-semibold py-3 rounded-xl hover:bg-teal-300 transition-all">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Main Container -->
-  <div class="max-w-6xl mx-auto mt-20 px-6 flex-grow">
+  <div class="w-full max-w-screen-2xl mx-auto mt-20 px-4 md:px-6 flex-grow">
     <!-- Title -->
     <div class="text-center mb-12">
       <h1 class="text-4xl md:text-5xl font-bold mb-4">
         Convert Your Code with <span class="text-teal-300">Markdown ↔ HTML</span>
       </h1>
       <p class="text-blue-100 max-w-2xl mx-auto text-lg">
-        Convert between Markdown and HTML formats instantly. Perfect for developers, writers, and content creators.
+        Convert between Markdown and HTML formats instantly. Now with advanced CSS, JavaScript, and SVG handling!
       </p>
     </div>
 
@@ -93,6 +325,7 @@
       <div class="glass-effect rounded-2xl p-2 flex items-center card-shadow">
         <label for="convertDirection" class="block text-lg font-semibold mr-4 text-white">Convert from</label>
         <select id="convertDirection" class="bg-white text-blue-800 text-base rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-300 w-64 input-focus">
+          <option value="auto" selected>Auto Detect</option>
           <option value="md-to-html">Markdown → HTML</option>
           <option value="html-to-md">HTML → Markdown</option>
         </select>
@@ -100,43 +333,51 @@
     </div>
 
     <!-- Converter UI -->
-    <div class="grid md:grid-cols-2 gap-8 mb-8">
+    <div class="grid md:grid-cols-2 gap-4 md:gap-6 mb-8">
       <!-- Input Panel -->
-      <div class="flex flex-col glass-effect p-6 rounded-2xl card-shadow">
-        <div class="flex justify-between items-center mb-4">
-          <div>
+      <div class="flex flex-col glass-effect p-4 md:p-6 rounded-2xl card-shadow min-w-0">
+        <div class="flex justify-between items-center mb-4 gap-2">
+          <div class="flex-shrink-0">
             <label class="text-xl font-semibold text-white">Input</label>
-            <div id="inputType" class="text-teal-200 text-sm mt-1">Markdown</div>
+            <div id="inputType" class="text-teal-200 text-sm mt-1">Auto Detect</div>
           </div>
-          <div class="flex space-x-1 text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1">
-            <button id="showCode" class="px-4 py-2 rounded-xl tab-active transition-all">
-              <i class="fas fa-code mr-1"></i>Code
-            </button>
-            <button id="showPreview" class="px-4 py-2 rounded-xl hover:bg-white/50 transition-all">
-              <i class="fas fa-eye mr-1"></i>Preview
-            </button>
+          <div class="flex items-center gap-2 flex-wrap justify-end">
+            <!-- File Upload Button -->
+            <label class="cursor-pointer bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-all flex items-center gap-2 text-sm font-semibold">
+              <i class="fas fa-upload"></i>
+              <span>Upload</span>
+              <input type="file" id="fileUpload" accept=".md,.html,.htm,.txt,.css,.js" class="hidden">
+            </label>
+            <div class="flex text-sm font-semibold text-blue-800 bg-teal-200 rounded-xl p-1">
+              <button id="showCode" class="px-3 py-1.5 rounded-lg tab-active transition-all">
+                <i class="fas fa-code mr-1"></i><span>Code</span>
+              </button>
+              <button id="showPreview" class="px-3 py-1.5 rounded-lg hover:bg-white/50 transition-all">
+                <i class="fas fa-eye mr-1"></i><span>Preview</span>
+              </button>
+            </div>
           </div>
         </div>
         
         <!-- Input Textarea -->
-        <textarea id="markdown" placeholder="Type or paste your Markdown here..." class="p-4 rounded-xl text-base h-80 resize-none text-blue-900 bg-white focus:outline-none input-focus"></textarea>
+        <textarea id="markdown" placeholder="Type or paste your Markdown or HTML here..." class="p-4 rounded-xl text-base h-80 resize-none text-blue-900 bg-white focus:outline-none input-focus"></textarea>
 
         <!-- Rendered Preview (Hidden by Default) -->
-        <div id="preview" class="p-4 rounded-xl text-base h-80 overflow-auto text-blue-900 bg-white hidden prose max-w-none"></div>
+        <div id="preview" class="p-4 rounded-xl text-base h-80 overflow-auto text-blue-900 bg-white hidden prose max-w-none preview-content"></div>
       </div>
 
       <!-- Output Panel -->
-      <div class="flex flex-col glass-effect p-6 rounded-2xl card-shadow">
-        <div class="flex justify-between items-center mb-4">
-          <div>
+      <div class="flex flex-col glass-effect p-4 md:p-6 rounded-2xl card-shadow min-w-0">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+          <div class="flex-shrink-0">
             <label class="text-xl font-semibold text-white">Output</label>
-            <div id="outputType" class="text-teal-200 text-sm mt-1">HTML</div>
+            <div id="outputType" class="text-teal-200 text-sm mt-1">Auto</div>
           </div>
-          <div class="flex items-center">
+          <div class="flex items-center flex-shrink-0">
             <span id="copySuccess" class="text-teal-300 text-sm mr-3 hidden copy-success">
               <i class="fas fa-check mr-1"></i>Copied!
             </span>
-            <button id="copyOutputBtn" class="text-blue-800 bg-teal-300 hover:bg-teal-200 px-4 py-2 rounded-xl transition-all flex items-center gap-2 hover:teal-glow">
+            <button id="copyOutputBtn" class="text-blue-800 bg-teal-300 hover:bg-teal-200 px-3 py-2 rounded-xl transition-all flex items-center gap-2 hover:teal-glow text-sm">
               <i class="fas fa-copy"></i>
               <span>Copy</span>
             </button>
@@ -145,16 +386,23 @@
         <textarea id="html" placeholder="Your converted code will appear here..." readonly class="p-4 rounded-xl text-base h-80 resize-none text-blue-900 bg-white focus:outline-none input-focus"></textarea>
       </div>
     </div>
+    
+    <!-- Extracted Files Info -->
+    <div id="extractedFilesInfo" class="hidden glass-effect rounded-2xl p-4 mb-8">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <i class="fas fa-folder-open"></i>
+        Extracted Files (will be included in ZIP)
+      </h3>
+      <div id="extractedFilesList" class="flex flex-wrap gap-2">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
 
     <!-- Action buttons -->
     <div class="flex flex-wrap justify-center gap-6 mt-8">
-      <button id="downloadHtml" class="bg-gradient-to-r from-blue-400 to-teal-300 text-blue-800 font-bold px-8 py-4 rounded-full hover:scale-105 transition-all shadow-lg flex items-center gap-2 pulse-animation">
+      <button id="downloadBtn" class="bg-gradient-to-r from-blue-400 to-teal-300 text-blue-800 font-bold px-8 py-4 rounded-full hover:scale-105 transition-all shadow-lg flex items-center gap-2 pulse-animation">
         <i class="fas fa-download"></i>
-        <span>Download HTML</span>
-      </button>
-      <button id="downloadMd" class="bg-gradient-to-r from-teal-300 to-blue-400 text-blue-800 font-bold px-8 py-4 rounded-full hover:scale-105 transition-all shadow-lg flex items-center gap-2">
-        <i class="fas fa-download"></i>
-        <span>Download Markdown</span>
+        <span id="downloadBtnText">Download</span>
       </button>
       <button id="clearBtn" class="bg-transparent text-white border-2 border-teal-300 font-semibold px-8 py-4 rounded-full hover:bg-teal-300/10 transition-all flex items-center gap-2">
         <i class="fas fa-eraser"></i>
@@ -167,8 +415,7 @@
   <footer class="bg-teal-300 px-4 py-8 w-full mt-16">
     <div class="text-center text-blue-800 px-4 max-w-7xl mx-auto">
       <p class="flex flex-col md:flex-row justify-center items-center gap-2">
-        <span>Made with <i class="fas fa-heart text-red-500 mx-1"></i> by <a href="https://julyw.com" class="text-blue-800 font-semibold hover:underline">July Wu</a>.</span>
-        <span>This project is <a href="https://github.com/JLW-7/convert-md---html" class="text-blue-800 font-semibold hover:underline">open source</a> - give it a <i class="fas fa-star text-yellow-500 mx-1"></i> and contribute!</span>
+        <span>Made with <i class="fas fa-heart text-red-500 mx-1"></i> by <a href="https://julyw.com" class="text-blue-800 font-semibold hover:underline">July Wu</a> and Richard Huang.</span>
       </p>
     </div>
   </footer>
@@ -185,13 +432,144 @@
       const copyOutputBtn = document.getElementById('copyOutputBtn');
       const copySuccess = document.getElementById('copySuccess');
       const clearBtn = document.getElementById('clearBtn');
-      const downloadHtmlBtn = document.getElementById('downloadHtml');
-      const downloadMdBtn = document.getElementById('downloadMd');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const downloadBtnText = document.getElementById('downloadBtnText');
       const inputType = document.getElementById('inputType');
       const outputType = document.getElementById('outputType');
+      const fileUpload = document.getElementById('fileUpload');
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsModal = document.getElementById('settingsModal');
+      const closeSettings = document.getElementById('closeSettings');
+      const saveSettings = document.getElementById('saveSettings');
+      const resetSettings = document.getElementById('resetSettings');
+      const extractedFilesInfo = document.getElementById('extractedFilesInfo');
+      const extractedFilesList = document.getElementById('extractedFilesList');
+      
+      // Settings elements
+      const cssHandling = document.getElementById('cssHandling');
+      const jsHandling = document.getElementById('jsHandling');
+      const svgHandling = document.getElementById('svgHandling');
+      const downloadFormat = document.getElementById('downloadFormat');
+      
+      // Toggle switches
+      const toggles = {
+        extractImages: document.getElementById('extractImages'),
+        useGfm: document.getElementById('useGfm'),
+        syntaxHighlight: document.getElementById('syntaxHighlight'),
+        fullHtmlPage: document.getElementById('fullHtmlPage'),
+        includeStyles: document.getElementById('includeStyles')
+      };
+      
+      // Extracted files storage
+      let extractedFiles = {};
+      
+      // Default settings
+      const defaultSettings = {
+        cssHandling: 'codeblock',
+        jsHandling: 'strip',
+        svgHandling: 'preserve',
+        extractImages: false,
+        useGfm: true,
+        syntaxHighlight: true,
+        fullHtmlPage: false,
+        includeStyles: false,
+        downloadFormat: 'single'
+      };
+      
+      // Current settings
+      let settings = { ...defaultSettings };
+      
+      // Load settings from localStorage
+      function loadSettings() {
+        const saved = localStorage.getItem('markySettings');
+        if (saved) {
+          settings = { ...defaultSettings, ...JSON.parse(saved) };
+        }
+        applySettingsToUI();
+      }
+      
+      // Apply settings to UI
+      function applySettingsToUI() {
+        cssHandling.value = settings.cssHandling;
+        jsHandling.value = settings.jsHandling;
+        svgHandling.value = settings.svgHandling;
+        downloadFormat.value = settings.downloadFormat;
+        
+        for (const [key, element] of Object.entries(toggles)) {
+          element.dataset.active = settings[key].toString();
+          element.classList.toggle('active', settings[key]);
+        }
+        
+        updateDownloadButton();
+      }
+      
+      // Save settings to localStorage
+      function saveSettingsToStorage() {
+        settings.cssHandling = cssHandling.value;
+        settings.jsHandling = jsHandling.value;
+        settings.svgHandling = svgHandling.value;
+        settings.downloadFormat = downloadFormat.value;
+        
+        for (const [key, element] of Object.entries(toggles)) {
+          settings[key] = element.dataset.active === 'true';
+        }
+        
+        localStorage.setItem('markySettings', JSON.stringify(settings));
+        updateDownloadButton();
+      }
+      
+      // Update download button text
+      function updateDownloadButton() {
+        const effectiveDirection = getEffectiveDirection();
+        const format = settings.downloadFormat;
+        
+        if (format === 'zip') {
+          downloadBtnText.textContent = 'Download ZIP';
+        } else if (effectiveDirection === 'md-to-html') {
+          downloadBtnText.textContent = 'Download HTML';
+        } else {
+          downloadBtnText.textContent = 'Download Markdown';
+        }
+      }
+      
+      // Toggle switch click handler
+      for (const [key, element] of Object.entries(toggles)) {
+        element.addEventListener('click', function() {
+          const isActive = this.dataset.active === 'true';
+          this.dataset.active = (!isActive).toString();
+          this.classList.toggle('active', !isActive);
+        });
+      }
       
       // Initialize
+      loadSettings();
       updateConversionLabels();
+      
+      // Settings Modal Events
+      settingsBtn.addEventListener('click', () => {
+        settingsModal.classList.remove('hidden');
+      });
+      
+      closeSettings.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+      });
+      
+      settingsModal.addEventListener('click', (e) => {
+        if (e.target === settingsModal) {
+          settingsModal.classList.add('hidden');
+        }
+      });
+      
+      saveSettings.addEventListener('click', () => {
+        saveSettingsToStorage();
+        settingsModal.classList.add('hidden');
+        convertContent(); // Re-convert with new settings
+      });
+      
+      resetSettings.addEventListener('click', () => {
+        settings = { ...defaultSettings };
+        applySettingsToUI();
+      });
       
       // Event Listeners
       convertDirection.addEventListener('change', function() {
@@ -231,39 +609,270 @@
         markdownInput.value = '';
         htmlOutput.value = '';
         previewDiv.innerHTML = '';
+        fileUpload.value = '';
+        extractedFiles = {};
+        updateExtractedFilesUI();
       });
       
-      downloadHtmlBtn.addEventListener('click', function() {
-        if (htmlOutput.value.trim() !== '') {
-          const blob = new Blob([htmlOutput.value], { type: 'text/html' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'converted.html';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+      // File Upload Handler
+      fileUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const fileName = file.name.toLowerCase();
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+          const content = event.target.result;
+          
+          // Auto-detect file type and set conversion direction
+          if (fileName.endsWith('.html') || fileName.endsWith('.htm')) {
+            convertDirection.value = 'html-to-md';
+            updateConversionLabels();
+          } else if (fileName.endsWith('.md') || fileName.endsWith('.markdown')) {
+            convertDirection.value = 'md-to-html';
+            updateConversionLabels();
+          }
+          
+          // Set the content and trigger conversion
+          markdownInput.value = content;
+          convertContent();
+          
+          // Ensure we're showing the code view
+          showCodeBtn.classList.add('tab-active');
+          showPreviewBtn.classList.remove('tab-active');
+          markdownInput.classList.remove('hidden');
+          previewDiv.classList.add('hidden');
+        };
+        
+        reader.onerror = function() {
+          alert('Error reading file. Please try again.');
+        };
+        
+        reader.readAsText(file);
+      });
+      
+      // Download Handler
+      downloadBtn.addEventListener('click', async function() {
+        const effectiveDirection = getEffectiveDirection();
+        const outputContent = htmlOutput.value;
+        const inputContent = markdownInput.value;
+        
+        if (!outputContent.trim()) {
+          alert('Nothing to download. Please convert some content first.');
+          return;
+        }
+        
+        if (settings.downloadFormat === 'zip') {
+          await downloadAsZip(effectiveDirection, outputContent, inputContent);
+        } else {
+          downloadSingleFile(effectiveDirection, outputContent, inputContent);
         }
       });
       
-      downloadMdBtn.addEventListener('click', function() {
-        if (markdownInput.value.trim() !== '') {
-          const blob = new Blob([markdownInput.value], { type: 'text/markdown' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'converted.md';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+      // Single file download
+      function downloadSingleFile(direction, outputContent, inputContent) {
+        let content, filename, mimeType;
+        
+        if (direction === 'md-to-html') {
+          content = settings.fullHtmlPage ? wrapInHtmlPage(outputContent) : outputContent;
+          filename = 'converted.html';
+          mimeType = 'text/html';
+        } else {
+          content = outputContent;
+          filename = 'converted.md';
+          mimeType = 'text/markdown';
         }
-      });
+        
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      // ZIP download
+      async function downloadAsZip(direction, outputContent, inputContent) {
+        const zip = new JSZip();
+        
+        if (direction === 'md-to-html') {
+          // Markdown to HTML - generate HTML files
+          let htmlContent = settings.fullHtmlPage ? wrapInHtmlPage(outputContent) : outputContent;
+          zip.file('index.html', htmlContent);
+          
+          if (settings.includeStyles) {
+            zip.file('styles.css', getDefaultStyles());
+          }
+        } else {
+          // HTML to Markdown - include main markdown and extracted files
+          zip.file('README.md', outputContent);
+          
+          // Add extracted files
+          for (const [filename, content] of Object.entries(extractedFiles)) {
+            zip.file(filename, content);
+          }
+        }
+        
+        // Generate and download ZIP
+        const blob = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'converted.zip';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      // Wrap content in full HTML page
+      function wrapInHtmlPage(content) {
+        const styles = settings.includeStyles ? `<link rel="stylesheet" href="styles.css">` : getInlineStyles();
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Converted Document</title>
+  ${styles}
+</head>
+<body>
+  <main class="content">
+    ${content}
+  </main>
+</body>
+</html>`;
+      }
+      
+      // Get inline styles for full HTML page
+      function getInlineStyles() {
+        return `<style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: #333;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    code {
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+    }
+    code:not(pre code) {
+      background: #f4f4f4;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+    }
+    blockquote {
+      border-left: 4px solid #ddd;
+      margin: 0;
+      padding-left: 1rem;
+      color: #666;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #f4f4f4;
+    }
+  </style>`;
+      }
+      
+      // Get default styles for external CSS file
+      function getDefaultStyles() {
+        return `/* Marky Generated Styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #333;
+}
+
+pre {
+  background: #f4f4f4;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+}
+
+code:not(pre code) {
+  background: #f4f4f4;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+blockquote {
+  border-left: 4px solid #ddd;
+  margin: 0;
+  padding-left: 1rem;
+  color: #666;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background: #f4f4f4;
+}
+`;
+      }
       
       // Functions
       function updateConversionLabels() {
-        if (convertDirection.value === 'md-to-html') {
+        if (convertDirection.value === 'auto') {
+          markdownInput.placeholder = 'Type or paste your Markdown or HTML here...';
+          
+          const trimmed = markdownInput.value.trim();
+          if (!trimmed) {
+            inputType.textContent = 'Auto Detect';
+            outputType.textContent = 'Auto';
+          } else if (isHTML(trimmed)) {
+            inputType.textContent = 'HTML';
+            outputType.textContent = 'Markdown';
+          } else {
+            inputType.textContent = 'Markdown';
+            outputType.textContent = 'HTML';
+          }
+        } else if (convertDirection.value === 'md-to-html') {
           inputType.textContent = 'Markdown';
           outputType.textContent = 'HTML';
           markdownInput.placeholder = 'Type or paste your Markdown here...';
@@ -272,17 +881,263 @@
           outputType.textContent = 'Markdown';
           markdownInput.placeholder = 'Type or paste your HTML here...';
         }
+        updateDownloadButton();
+      }
+      
+      // Detect if content is HTML
+      function isHTML(content) {
+        if (!content || content.trim() === '') return false;
+        const trimmed = content.trim();
+        const htmlPatterns = [
+          /^<!DOCTYPE\s+html/i,
+          /^<html[\s>]/i,
+          /^<head[\s>]/i,
+          /^<body[\s>]/i,
+          /^<div[\s>]/i,
+          /^<p[\s>]/i,
+          /^<span[\s>]/i,
+          /^<h[1-6][\s>]/i,
+          /^<(ul|ol|li)[\s>]/i,
+          /^<(table|tr|td|th)[\s>]/i,
+          /^<(a|img|br|hr)[\s>\/]/i,
+          /^<(strong|em|b|i|u)[\s>]/i,
+          /^<(section|article|header|footer|nav|main|aside)[\s>]/i,
+          /^<style[\s>]/i,
+          /^<script[\s>]/i
+        ];
+        
+        for (const pattern of htmlPatterns) {
+          if (pattern.test(trimmed)) return true;
+        }
+        
+        const tagCount = (content.match(/<[a-z][a-z0-9]*[\s>\/]/gi) || []).length;
+        const closingTagCount = (content.match(/<\/[a-z][a-z0-9]*>/gi) || []).length;
+        
+        if (tagCount >= 2 && closingTagCount >= 1) return true;
+        
+        return false;
+      }
+      
+      // Get the effective conversion direction
+      function getEffectiveDirection() {
+        if (convertDirection.value === 'auto') {
+          return isHTML(markdownInput.value) ? 'html-to-md' : 'md-to-html';
+        }
+        return convertDirection.value;
+      }
+      
+      // Create TurndownService with custom rules
+      function createTurndownService() {
+        const turndownService = new TurndownService({
+          headingStyle: 'atx',
+          codeBlockStyle: 'fenced',
+          bulletListMarker: '-'
+        });
+        
+        // Apply GFM plugin if enabled
+        if (settings.useGfm && window.turndownPluginGfm) {
+          turndownService.use(turndownPluginGfm.gfm);
+        }
+        
+        // Custom rule for <style> tags
+        turndownService.addRule('style', {
+          filter: 'style',
+          replacement: function(content, node) {
+            const cssContent = node.textContent.trim();
+            if (!cssContent) return '';
+            
+            switch (settings.cssHandling) {
+              case 'codeblock':
+                return '\n\n```css\n' + cssContent + '\n```\n\n';
+              case 'extract':
+                const cssFileName = `styles-${Object.keys(extractedFiles).filter(f => f.startsWith('styles')).length + 1}.css`;
+                extractedFiles[cssFileName] = cssContent;
+                return `\n\n<!-- Extracted to ${cssFileName} -->\n\n`;
+              case 'strip':
+                return '';
+              case 'preserve':
+                return '\n\n' + node.outerHTML + '\n\n';
+              default:
+                return '';
+            }
+          }
+        });
+        
+        // Custom rule for <script> tags
+        turndownService.addRule('script', {
+          filter: 'script',
+          replacement: function(content, node) {
+            const jsContent = node.textContent.trim();
+            const src = node.getAttribute('src');
+            
+            // Handle external scripts
+            if (src) {
+              switch (settings.jsHandling) {
+                case 'codeblock':
+                  return `\n\n<!-- External script: ${src} -->\n\n`;
+                case 'preserve':
+                  return '\n\n' + node.outerHTML + '\n\n';
+                default:
+                  return '';
+              }
+            }
+            
+            if (!jsContent) return '';
+            
+            switch (settings.jsHandling) {
+              case 'codeblock':
+                return '\n\n```javascript\n' + jsContent + '\n```\n\n';
+              case 'extract':
+                const jsFileName = `script-${Object.keys(extractedFiles).filter(f => f.startsWith('script')).length + 1}.js`;
+                extractedFiles[jsFileName] = jsContent;
+                return `\n\n<!-- Extracted to ${jsFileName} -->\n\n`;
+              case 'strip':
+                return '';
+              case 'preserve':
+                return '\n\n' + node.outerHTML + '\n\n';
+              default:
+                return '';
+            }
+          }
+        });
+        
+        // Custom rule for <svg> elements
+        turndownService.addRule('svg', {
+          filter: 'svg',
+          replacement: function(content, node) {
+            switch (settings.svgHandling) {
+              case 'preserve':
+                return '\n\n' + node.outerHTML + '\n\n';
+              case 'extract':
+                const svgFileName = `image-${Object.keys(extractedFiles).filter(f => f.startsWith('image')).length + 1}.svg`;
+                extractedFiles[svgFileName] = node.outerHTML;
+                return `\n\n![SVG Image](${svgFileName})\n\n`;
+              case 'placeholder':
+                return '\n\n![SVG Image]\n\n';
+              case 'strip':
+                return '';
+              default:
+                return '\n\n' + node.outerHTML + '\n\n';
+            }
+          }
+        });
+        
+        // Custom rule for <video> elements
+        turndownService.addRule('video', {
+          filter: 'video',
+          replacement: function(content, node) {
+            const src = node.getAttribute('src') || node.querySelector('source')?.getAttribute('src') || '';
+            const poster = node.getAttribute('poster') || '';
+            if (poster) {
+              return `\n\n[![Video](${poster})](${src})\n\n`;
+            }
+            return `\n\n[Video: ${src}](${src})\n\n`;
+          }
+        });
+        
+        // Custom rule for <audio> elements
+        turndownService.addRule('audio', {
+          filter: 'audio',
+          replacement: function(content, node) {
+            const src = node.getAttribute('src') || node.querySelector('source')?.getAttribute('src') || '';
+            return `\n\n[Audio: ${src}](${src})\n\n`;
+          }
+        });
+        
+        // Custom rule for <iframe> elements
+        turndownService.addRule('iframe', {
+          filter: 'iframe',
+          replacement: function(content, node) {
+            const src = node.getAttribute('src') || '';
+            const title = node.getAttribute('title') || 'Embedded content';
+            return `\n\n[${title}](${src})\n\n`;
+          }
+        });
+        
+        // Handle base64 images if extraction is enabled
+        if (settings.extractImages) {
+          turndownService.addRule('base64Image', {
+            filter: function(node) {
+              return node.nodeName === 'IMG' && 
+                     node.getAttribute('src')?.startsWith('data:image/');
+            },
+            replacement: function(content, node) {
+              const src = node.getAttribute('src');
+              const alt = node.getAttribute('alt') || 'image';
+              
+              // Extract base64 data
+              const matches = src.match(/^data:image\/(\w+);base64,(.+)$/);
+              if (matches) {
+                const ext = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+                const imageFileName = `assets/image-${Object.keys(extractedFiles).filter(f => f.startsWith('assets/')).length + 1}.${ext}`;
+                extractedFiles[imageFileName] = matches[2]; // Store as base64 string
+                return `![${alt}](${imageFileName})`;
+              }
+              
+              return `![${alt}](${src})`;
+            }
+          });
+        }
+        
+        return turndownService;
+      }
+      
+      // Update extracted files UI
+      function updateExtractedFilesUI() {
+        const fileCount = Object.keys(extractedFiles).length;
+        
+        if (fileCount > 0 && settings.downloadFormat === 'zip') {
+          extractedFilesInfo.classList.remove('hidden');
+          extractedFilesList.innerHTML = Object.keys(extractedFiles).map(filename => {
+            const ext = filename.split('.').pop();
+            const icon = {
+              'css': 'fa-css3-alt',
+              'js': 'fa-js',
+              'svg': 'fa-image',
+              'png': 'fa-image',
+              'jpg': 'fa-image',
+              'gif': 'fa-image'
+            }[ext] || 'fa-file';
+            
+            return `<span class="bg-white/20 px-3 py-1 rounded-lg flex items-center gap-2 text-sm">
+              <i class="fab ${icon}"></i>${filename}
+            </span>`;
+          }).join('');
+        } else {
+          extractedFilesInfo.classList.add('hidden');
+        }
       }
       
       function convertContent() {
-        if (convertDirection.value === 'md-to-html') {
+        const effectiveDirection = getEffectiveDirection();
+        
+        // Reset extracted files
+        extractedFiles = {};
+        updateConversionLabels();
+        
+        if (effectiveDirection === 'md-to-html') {
           // Markdown to HTML conversion
-          htmlOutput.value = marked.parse(markdownInput.value);
+          let html = marked.parse(markdownInput.value);
+          
+          // Apply syntax highlighting if enabled
+          if (settings.syntaxHighlight) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            tempDiv.querySelectorAll('pre code').forEach((block) => {
+              hljs.highlightElement(block);
+            });
+            html = tempDiv.innerHTML;
+          }
+          
+          htmlOutput.value = html;
         } else {
           // HTML to Markdown conversion
-          const turndownService = new TurndownService();
+          const turndownService = createTurndownService();
           htmlOutput.value = turndownService.turndown(markdownInput.value);
         }
+        
+        // Update extracted files UI
+        updateExtractedFilesUI();
         
         // Update preview if it's visible
         if (!previewDiv.classList.contains('hidden')) {
@@ -291,10 +1146,19 @@
       }
       
       function updatePreview() {
-        if (convertDirection.value === 'md-to-html') {
-          previewDiv.innerHTML = marked.parse(markdownInput.value);
+        const effectiveDirection = getEffectiveDirection();
+        
+        if (effectiveDirection === 'md-to-html') {
+          let html = marked.parse(markdownInput.value);
+          previewDiv.innerHTML = html;
+          
+          // Apply syntax highlighting to preview
+          if (settings.syntaxHighlight) {
+            previewDiv.querySelectorAll('pre code').forEach((block) => {
+              hljs.highlightElement(block);
+            });
+          }
         } else {
-          // For HTML to Markdown, we'll show the HTML preview
           previewDiv.innerHTML = markdownInput.value;
         }
       }
